@@ -92,7 +92,9 @@ float coastCoordinates[][2] = {
   { 43.9180760, -69.2779999 },
   { 43.9566433, -69.1928559 },
   { 44.0726884, -69.0514069 },
-  { 44.0924182, -69.0383606 }
+  { 44.0924182, -69.0383606 },
+  { 44, -68.5},
+  { 42, -68.5}
 };
 
 float PWMrunway11_29[][2] = {
@@ -161,7 +163,7 @@ float lakeWinnipesaukeeShoreline[][2] = {
 Mapsetbase myMapSets[] = {
   { ksfmRunway7, sizeof(ksfmRunway7) / sizeof(ksfmRunway7[0]), YELLOW },
   { ksfmRunway14, sizeof(ksfmRunway14) / sizeof(ksfmRunway14[0]), YELLOW },
-  { coastCoordinates, sizeof(coastCoordinates) / sizeof(coastCoordinates[0]), -1 },
+  { coastCoordinates, sizeof(coastCoordinates) / sizeof(coastCoordinates[0]), 0x126e },
   { sebagoLakeOutline, sizeof(sebagoLakeOutline) / sizeof(sebagoLakeOutline[0]), BLUE },
   { PWMrunway18_36, sizeof(PWMrunway18_36) / sizeof(PWMrunway18_36[0]), -1 },
   { PWMrunway11_29, sizeof(PWMrunway11_29) / sizeof(PWMrunway11_29[0]), -1 },

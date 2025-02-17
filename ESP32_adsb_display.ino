@@ -20,8 +20,7 @@
 const char *adsbSource = "http://192.168.0.199:8080/data/aircraft.json";
 uint16_t screenWidth = 800;
 uint16_t screenHeight = 480;
-float screenPysicalWidth =
-    95.26; // units do not matter. need this to calc pixel aspect ratio
+float screenPysicalWidth =    95.26; // units do not matter. need this to calc pixel aspect ratio
 float screenPhysicalHeight = 54.3;
 
 float centerLat = 43.386667;

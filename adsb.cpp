@@ -13,7 +13,7 @@ WiFiClient client;  // or WiFiClientSecure for HTTPS
 #include "mapdata.h"
 JsonDocument thisADSB;
 #define LARGEFONT u8g2_font_profont29_tr
-#define MEDIUMFONT u8g2_font_profont22_tr										
+#define MEDIUMFONT u8g2_font_profont22_tr
 #define SMALLFONT u8g2_font_profont22_tr
 
 float latMax;    // top of the screen display
@@ -59,9 +59,9 @@ char *testData = R"(
 }
 )";
 */
-#define MAX_TRACK_COUNT  400
+#define MAX_TRACK_COUNT 400
 Track trackArray[MAX_TRACK_COUNT];  // Array of  tracks
-int trackCount = 0;     // Current number of tracks in the array
+int trackCount = 0;                 // Current number of tracks in the array
 const int MAX_AIRCRAFT = 20;
 Aircraft aircraftList[MAX_AIRCRAFT];
 int aircraftCount;
@@ -123,7 +123,7 @@ void get_route_info(Aircraft *thisAircraft) {
   trim_right(thisAircraft->flight);
   char payload[200];  // Ensure the buffer is large enough
   snprintf(payload, sizeof(payload),
-           "{\"planes\": [{\"callsign\": \"%s\", \"lat\": 43.0, \"lng\": -70.0}]}",
+           "{\"planes\": [{\"callsign\": \"%s\", \"lat\": centerLat, \"lng\": centerLon}]}",
            thisAircraft->flight);
 
   WiFiClientSecure client;
@@ -216,7 +216,7 @@ void add_track_data(float lat, float lon, uint16_t altColor) {
   if ((lat > latMin) && (lat < latMax) && (lon > lonMin) && (lon < lonMax)) {}
   unsigned long currentTime = (millis() / 1000);  // just convert to seconds
   // Add the new track data to the array if there's space
-  if (trackCount < MAX_TRACK_COUNT ) {  // Ensure we don't exceed the array size
+  if (trackCount < MAX_TRACK_COUNT) {  // Ensure we don't exceed the array size
     trackArray[trackCount].lat = lat;
     trackArray[trackCount].lon = lon;
     trackArray[trackCount].altColor = altColor;
@@ -255,6 +255,25 @@ void draw_scale() {
   gfx->drawCircle(screenWidth / 2, screenHeight / 2, 10 * pixelsPerMileY, WHITE);
 }
 
+void get_airline_name(struct Aircraft *thisFlight) {
+  Serial.println(thisFlight->flight);
+  if (thisFlight == NULL || strlen(thisFlight->flight) < 3) {
+    strlcpy(thisFlight->airline, "  ", sizeof(thisFlight->airline));
+  }
+ 
+  char icaoCode[4];
+  strlcpy(icaoCode, thisFlight->flight, 4);
+  Serial.println("code");
+  Serial.println(icaoCode);
+  for (int i = 0; airlines[i].icao[0] != '\0'; i++) {
+    if (strcmp(icaoCode, airlines[i].icao) == 0) {
+      Serial.println(airlines[i].airlineName);
+      strlcpy(thisFlight->airline, airlines[i].airlineName, sizeof(thisFlight->airline));
+      return ;
+    }
+  }
+  strlcpy(thisFlight->airline, " ", sizeof(thisFlight->airline));;
+}
 void parse_ADSB() {
   JsonArray aircraftArray = thisADSB["aircraft"];
   aircraftCount = 0;  // Reset count before parsing
@@ -293,7 +312,7 @@ void plot_aircraft_data() {
     if ((screen_x > 0) && (screen_y > 0) && (screen_x < screenWidth) && (screen_y < screenHeight)) {
       gfx->fillCircle(screen_x, screen_y, 3, aircraftList[i].altColor);  //  circle to represent aircraft
       gfx->setTextSize(1);
-      gfx->setFont( SMALLFONT );
+      gfx->setFont(SMALLFONT);
       gfx->setTextColor(WHITE);
       gfx->setCursor(screen_x + 10, screen_y + 10);
       snprintf(buffer, sizeof(buffer), "%s%s", aircraftList[i].flight, aircraftList[i].type);
@@ -327,11 +346,14 @@ void show_side_bar(Aircraft thisAircraft) {
   gfx->fillRect(16, 16, screenWidth / 2, screenHeight * .9, 0x203030);
   gfx->setTextBound(40, 30, (screenWidth / 2) - 20, (screenHeight * .9) - 25);
   get_route_info(&thisAircraft);
+get_airline_name(&thisAircraft);
   gfx->setCursor(20, 35);
   char buffer[50];
   gfx->setTextSize(1);
-  gfx->setFont( LARGEFONT  );
+  gfx->setFont(LARGEFONT);
   gfx->setTextColor(WHITE);
+    snprintf(buffer,sizeof(buffer),thisAircraft.airline);
+    gfx->println(buffer);
   snprintf(buffer, sizeof(buffer), "Reg: %s", thisAircraft.reg);
   gfx->println(buffer);
   snprintf(buffer, sizeof(buffer), "Type: %s", thisAircraft.type);
@@ -344,7 +366,7 @@ void show_side_bar(Aircraft thisAircraft) {
   gfx->println(buffer);
   snprintf(buffer, sizeof(buffer), "Route: %s", thisAircraft.airportCodes);
   gfx->println(buffer);
-	 gfx->setFont( MEDIUMFONT  );							
+  gfx->setFont(MEDIUMFONT);
   snprintf(buffer, sizeof(buffer), "From: %s, %s", thisAircraft.departureCity, thisAircraft.departureCountry);
   gfx->println(buffer);
   snprintf(buffer, sizeof(buffer), "%s", thisAircraft.departureName);
@@ -353,7 +375,7 @@ void show_side_bar(Aircraft thisAircraft) {
   gfx->println(buffer);
   snprintf(buffer, sizeof(buffer), "%s", thisAircraft.arrivalName);
   gfx->println(buffer);
-	    gfx->setFont( LARGEFONT  );						   
+  gfx->setFont(LARGEFONT);
   snprintf(buffer, sizeof(buffer), "Speed: %d", thisAircraft.gs);
   gfx->println(buffer);
   snprintf(buffer, sizeof(buffer), "Alt: %d", thisAircraft.alt_baro);
@@ -368,7 +390,7 @@ void process_ADSB() {
 
 void refresh_screen() {
   clear_stale_track_data();
-  gfx->fillScreen(0x5aeb);   // dark gray
+  gfx->fillScreen(0x5aeb);  // dark gray
   draw_map_outline();
   plot_track_data();
   plot_aircraft_data();

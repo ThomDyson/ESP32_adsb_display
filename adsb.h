@@ -52,6 +52,7 @@ extern const char *adsbSource;
 struct Aircraft {
   char hex[7];
   char flight[10];
+  char airline[30];  // update by get_airline_name for sidebar
   char reg[8];
   char type[7];
   char desc[60];
@@ -66,7 +67,7 @@ struct Aircraft {
   char route[15];
   char emergency[8];
   uint16_t altColor;
-  char airportCodes[20];
+  char airportCodes[20];  //updated by get_route_info
   char departureCode[5];
   char departureName[60];
   char departureCity[20];
@@ -89,12 +90,12 @@ extern ScreenPoint aircraftLocations[];
 extern int aircraftCount;
 
 typedef struct {
-    char name[50];  // Airline name
+    char airlineName[50];  // Airline name
     char icao[4];   // ICAO code
 } Airline;
 
 const Airline airlines[] = {
-    // Top 20 US Airlines and transatlantic and cargo, etc
+    // Top  US Airlines and transatlantic and cargo, etc
     {"American Airlines", "AAL"},
     {"Delta Air Lines", "DAL"},
     {"United Airlines", "UAL"},
@@ -138,6 +139,8 @@ const Airline airlines[] = {
     {"Air Transat", "TSC"},
     {"Cape Air", "KAP"}
 };
+
+const int numAirlines = sizeof(airlines) / sizeof(airlines[0]);
 
 void parse_ADSB();
 void process_ADSB();
