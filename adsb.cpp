@@ -123,8 +123,8 @@ void get_route_info(Aircraft *thisAircraft) {
   trim_right(thisAircraft->flight);
   char payload[200];  // Ensure the buffer is large enough
   snprintf(payload, sizeof(payload),
-           "{\"planes\": [{\"callsign\": \"%s\", \"lat\": centerLat, \"lng\": centerLon}]}",
-           thisAircraft->flight);
+           "{\"planes\": [{\"callsign\": \"%s\", \"lat\": %d, \"lng\": %d}]}",
+           thisAircraft->flight, centerLat, centerLon);
 
   WiFiClientSecure client;
   client.setInsecure();
@@ -151,6 +151,8 @@ void get_route_info(Aircraft *thisAircraft) {
     const char *airportCodes = doc[0]["_airport_codes_iata"];
     if (airportCodes) {
       strlcpy(thisAircraft->airportCodes, airportCodes, sizeof(thisAircraft->airportCodes));
+    } else {
+      serializeJson(doc, Serial);
     }
     // Extract Airport details
     JsonArray airports = doc[0]["_airports"];
